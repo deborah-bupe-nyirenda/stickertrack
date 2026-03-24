@@ -557,11 +557,7 @@ tbody td {
   overflow: hidden;
 }
 
-.modal-body {
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0; /* critical for flex scroll to work */
-}
+.modal-body { padding: 24px; overflow-y: auto; flex: 1; min-height: 0; }
 
 /* Ensure footer always stays visible */
 .modal-footer {
