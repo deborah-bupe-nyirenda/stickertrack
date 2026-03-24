@@ -297,23 +297,7 @@ async function markAsPaid(saleId) {
 /**
  * Delete a sale from Firestore after confirmation
  */
-async function deleteSale(saleId) {
-  if (!confirm('Are you sure you want to delete this sale? This cannot be undone.')) return;
 
-  try {
-    await db.collection('sales').doc(saleId).delete();
-    showToast('Sale deleted');
-
-    // Refresh current view
-    if (currentView === 'sales')     await loadSalesView();
-    if (currentView === 'dashboard') await loadDashboard();
-    if (currentView === 'customers') await loadCustomersView();
-    if (currentView === 'reports')   await loadReportsView();
-  } catch (err) {
-    console.error('Error deleting sale:', err);
-    showToast('Failed to delete sale', 'error');
-  }
-}
 
 // ── Customers View ──────────────────────────────
 
