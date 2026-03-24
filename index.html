@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StickerTrack — Sales Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Firebase SDKs (version 9 compat mode — works without a build step) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+
+<!-- ═══════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════ -->
+<div class="app-shell">
+
+  <!-- ── Sidebar Overlay (mobile) ── -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ═══ SIDEBAR ═══════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <div class="logo-icon">🏷️</div>
+        <div>
+          <div class="logo-text">StickerTrack</div>
+          <span class="logo-sub">Sales & Profit Tracker</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu</div>
+
+      <button class="nav-item active" data-view="dashboard">
+        <span class="nav-icon">⊞</span>
+        Dashboard
+      </button>
+
+      <button class="nav-item" data-view="sales">
+        <span class="nav-icon">📋</span>
+        Sales
+      </button>
+
+      <button class="nav-item" data-view="customers">
+        <span class="nav-icon">👥</span>
+        Customers
+      </button>
+
+      <button class="nav-item" data-view="reports">
+        <span class="nav-icon">📊</span>
+        Reports
+      </button>
+    </nav>
+
+    <!-- Footer badge -->
+    <div class="sidebar-footer">
+      <div class="sidebar-badge">
+        💡 Prices in ZMW
+      </div>
+    </div>
+
+  </aside>
+  <!-- ═══ END SIDEBAR ═══════════════════════ -->
+
+
+  <!-- ═══ MAIN CONTENT ══════════════════════ -->
+  <main class="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Open menu">☰</button>
+        <span class="topbar-title" id="topbar-title">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary open-add-sale">
+          <span>＋</span> Add Sale
+        </button>
+      </div>
+    </header>
+
+    <!-- ─────────────────────────────────────── -->
+    <!-- Page content wrapper                    -->
+    <!-- ─────────────────────────────────────── -->
+    <div class="page-content">
+
+
+      <!-- ═══════════════════════════════════
+           VIEW: DASHBOARD
+      ════════════════════════════════════ -->
+      <section class="view active" id="view-dashboard">
+
+        <!-- Metric Cards -->
+        <div class="metrics-grid">
+
+          <div class="metric-card">
+            <div class="metric-card-icon indigo">💰</div>
+            <div class="metric-label">Total Revenue</div>
+            <div class="metric-value" id="metric-revenue">—</div>
+            <div class="metric-sub">All time sales</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-card-icon green">📈</div>
+            <div class="metric-label">Total Profit</div>
+            <div class="metric-value" id="metric-profit">—</div>
+            <div class="metric-sub">Revenue minus cost</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-card-icon amber">⏳</div>
+            <div class="metric-label">Pending Amount</div>
+            <div class="metric-value" id="metric-pending">—</div>
+            <div class="metric-sub">Outstanding balances</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-card-icon purple">🧾</div>
+            <div class="metric-label">Total Sales</div>
+            <div class="metric-value" id="metric-count">—</div>
+            <div class="metric-sub">Transactions recorded</div>
+          </div>
+
+        </div>
+        <!-- end metrics-grid -->
+
+        <!-- Recent Sales Table -->
+        <div class="section-header">
+          <h2 class="section-title">Recent Sales</h2>
+          <button class="btn btn-secondary btn-sm open-add-sale">＋ Quick Add Sale</button>
+        </div>
+
+        <div class="table-card">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="recent-sales-body">
+                <tr><td colspan="6">
+                  <div class="loading-state"><div class="spinner"></div> Loading…</div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+      <!-- ═══ END DASHBOARD VIEW ════════════ -->
+
+
+      <!-- ═══════════════════════════════════
+           VIEW: SALES
+      ════════════════════════════════════ -->
+      <section class="view" id="view-sales">
+
+        <!-- Filter Tabs + Add Button -->
+        <div class="section-header">
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="paid">Paid</button>
+            <button class="filter-tab" data-filter="pending">Pending</button>
+          </div>
+          <button class="btn btn-primary open-add-sale">＋ Add Sale</button>
+        </div>
+
+        <!-- Sales Table -->
+        <div class="table-card">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Unit Price</th>
+                  <th>Total</th>
+                  <th>Cost Price</th>
+                  <th>Profit</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="sales-table-body">
+                <tr><td colspan="10">
+                  <div class="loading-state"><div class="spinner"></div> Loading…</div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+      <!-- ═══ END SALES VIEW ════════════════ -->
+
+
+      <!-- ═══════════════════════════════════
+           VIEW: CUSTOMERS
+      ════════════════════════════════════ -->
+      <section class="view" id="view-customers">
+
+        <div class="section-header">
+          <h2 class="section-title">Customer Balances</h2>
+        </div>
+
+        <div class="table-card">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer Name</th>
+                  <th>Total Sales</th>
+                  <th>Total Purchased</th>
+                  <th>Amount Paid</th>
+                  <th>Amount Owing</th>
+                </tr>
+              </thead>
+              <tbody id="customers-table-body">
+                <tr><td colspan="5">
+                  <div class="loading-state"><div class="spinner"></div> Loading…</div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+      <!-- ═══ END CUSTOMERS VIEW ════════════ -->
+
+
+      <!-- ═══════════════════════════════════
+           VIEW: REPORTS
+      ════════════════════════════════════ -->
+      <section class="view" id="view-reports">
+
+        <div class="section-header">
+          <h2 class="section-title">Business Reports</h2>
+        </div>
+
+        <!-- Summary metric cards (4 across) -->
+        <div class="metrics-grid" style="margin-bottom:24px">
+
+          <div class="metric-card">
+            <div class="metric-card-icon indigo">💰</div>
+            <div class="metric-label">Total Revenue</div>
+            <div class="metric-value" id="report-revenue">—</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-card-icon green">📈</div>
+            <div class="metric-label">Total Profit</div>
+            <div class="metric-value" id="report-profit">—</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-card-icon purple">✅</div>
+            <div class="metric-label">Total Collected</div>
+            <div class="metric-value" id="report-collected">—</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-card-icon amber">⏳</div>
+            <div class="metric-label">Total Pending</div>
+            <div class="metric-value" id="report-pending">—</div>
+          </div>
+
+        </div>
+
+        <!-- Product breakdown -->
+        <div class="reports-grid">
+          <div class="report-summary-card">
+            <div class="report-summary-title">
+              <span>🏷️</span> Sales by Product
+            </div>
+            <div id="product-breakdown">
+              <div class="loading-state"><div class="spinner"></div> Loading…</div>
+            </div>
+          </div>
+
+          <div class="report-summary-card">
+            <div class="report-summary-title">
+              <span>💡</span> Quick Tips
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px; padding-top:4px">
+              <div style="font-size:13px; color:var(--text-secondary); line-height:1.7">
+                <strong style="color:var(--text-primary)">📦 Track cost prices</strong><br>
+                Always enter the unit cost price when adding a sale so your profit figures are accurate.
+              </div>
+              <div style="font-size:13px; color:var(--text-secondary); line-height:1.7">
+                <strong style="color:var(--text-primary)">💸 Clear pending balances</strong><br>
+                Visit the Sales view and use "Mark Paid" to update customer payments and keep records clean.
+              </div>
+              <div style="font-size:13px; color:var(--text-secondary); line-height:1.7">
+                <strong style="color:var(--text-primary)">👥 Monitor customers</strong><br>
+                The Customers page shows who owes you money so you can follow up easily.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      <!-- ═══ END REPORTS VIEW ══════════════ -->
+
+
+    </div>
+    <!-- end page-content -->
+
+  </main>
+  <!-- ═══ END MAIN CONTENT ═════════════════ -->
+
+</div>
+<!-- end app-shell -->
+
+
+<!-- ═══════════════════════════════════════════
+     ADD SALE MODAL
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="sale-modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-heading">🏷️ Record New Sale</h2>
+      <button class="modal-close" id="modal-close" aria-label="Close modal">✕</button>
+    </div>
+
+    <!-- Form -->
+    <form id="sale-form">
+      <div class="modal-body">
+        <div class="form-grid">
+
+          <!-- Customer Name with Autocomplete -->
+          <div class="form-group full-width">
+            <label for="sale-customer">Customer Name *</label>
+            <div class="autocomplete-wrapper">
+              <input
+                type="text"
+                id="sale-customer"
+                placeholder="e.g. Chanda Mutale"
+                autocomplete="off"
+                required
+              />
+              <div class="autocomplete-list" id="customer-autocomplete"></div>
+            </div>
+          </div>
+
+          <!-- Product -->
+          <div class="form-group">
+            <label for="sale-product">Product *</label>
+            <select id="sale-product" required>
+              <option value="">Select product…</option>
+              <option value="Sticker">Sticker</option>
+              <option value="Laptop Skin">Laptop Skin</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- Quantity -->
+          <div class="form-group">
+            <label for="sale-qty">Quantity *</label>
+            <input
+              type="number"
+              id="sale-qty"
+              min="1"
+              placeholder="e.g. 5"
+              required
+            />
+          </div>
+
+          <!-- Unit Selling Price -->
+          <div class="form-group">
+            <label for="sale-unit-price">Unit Selling Price (ZMW) *</label>
+            <input
+              type="number"
+              id="sale-unit-price"
+              min="0"
+              step="0.01"
+              placeholder="e.g. 150.00"
+              required
+            />
+          </div>
+
+          <!-- Unit Cost Price -->
+          <div class="form-group">
+            <label for="sale-cost-price">Unit Cost Price (ZMW)</label>
+            <input
+              type="number"
+              id="sale-cost-price"
+              min="0"
+              step="0.01"
+              placeholder="e.g. 80.00 (optional)"
+            />
+          </div>
+
+          <!-- Date -->
+          <div class="form-group full-width">
+            <label for="sale-date">Date *</label>
+            <input type="date" id="sale-date" required />
+          </div>
+
+          <!-- Payment Status Toggle -->
+          <div class="form-group full-width">
+            <label>Payment Status *</label>
+            <div class="payment-toggle">
+
+              <label class="toggle-option selected-paid" data-value="paid">
+                <input type="radio" name="payment-status" value="paid" checked
+                  onchange="updatePaymentToggle('paid')" />
+                ✅ Paid
+              </label>
+
+              <label class="toggle-option" data-value="pending">
+                <input type="radio" name="payment-status" value="pending"
+                  onchange="updatePaymentToggle('pending')" />
+                ⏳ Pending
+              </label>
+
+            </div>
+          </div>
+
+          <!-- Live Calculation Preview -->
+          <div class="form-group full-width">
+            <label>Auto Calculation</label>
+            <div class="calc-preview">
+              <div class="calc-item">
+                <span class="calc-item-label">Total Amount</span>
+                <span class="calc-item-value" id="preview-total">ZMW 0.00</span>
+              </div>
+              <div class="calc-item">
+                <span class="calc-item-label">Estimated Profit</span>
+                <span class="calc-item-value" id="preview-profit">ZMW 0.00</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- end form-grid -->
+      </div>
+      <!-- end modal-body -->
+
+      <!-- Footer Buttons -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="submit-sale-btn">Record Sale</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+<!-- ═══ END MODAL ════════════════════════════ -->
+
+
+<!-- Toast notification container -->
+<div id="toast-container"></div>
+
+
+<!-- ── Scripts ── -->
+<!-- Firebase config (your credentials go here) -->
+<script src="firebase-config.js"></script>
+<!-- App logic -->
+<script src="app.js"></script>
+
+</body>
+</html>
