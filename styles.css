@@ -367,7 +367,27 @@ body {
 
 .btn-success:hover { background: #dcfce7; }
 
-.btn-sm { font-size: 12px; padding: 5px 10px; }
+.btn-danger {
+  background: var(--red-soft);
+  color: var(--red);
+  border: 1px solid #fecaca;
+  font-size: 12px;
+  padding: 5px 10px;
+}
+
+.btn-danger:hover { background: #fee2e2; }
+
+.btn-danger {
+  background: var(--red-soft);
+  color: var(--red);
+  border: 1px solid #fecaca;
+  font-size: 12px;
+  padding: 5px 10px;
+}
+
+.btn-danger:hover { background: #fee2e2; }
+
+
 
 /* ── Tables ── */
 .table-card {
@@ -529,8 +549,23 @@ tbody td {
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 520px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: var(--shadow-lg);
   animation: slideUp 0.2s ease;
+  overflow: hidden;
+}
+
+.modal-body {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0; /* critical for flex scroll to work */
+}
+
+/* Ensure footer always stays visible */
+.modal-footer {
+  flex-shrink: 0;
 }
 
 @keyframes slideUp {
@@ -565,11 +600,7 @@ tbody td {
 
 .modal-close:hover { color: var(--text-primary); }
 
-..modal-body { 
-  padding: 24px;
-  max-height: 60vh;
-  overflow-y: auto;
-}
+.modal-body { padding: 24px; }
 
 .modal-footer {
   padding: 16px 24px;
