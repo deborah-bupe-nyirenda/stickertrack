@@ -544,25 +544,34 @@ tbody td {
   to { opacity: 1; }
 }
 
+/* Update the modal to ensure it doesn't expand past the screen */
 .modal {
   background: var(--surface);
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 520px;
-  max-height: 92vh;
+  max-height: 90vh; /* Keep it within the viewport */
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-lg);
   animation: slideUp 0.2s ease;
-  overflow: hidden;
+  overflow: hidden; /* Prevents double scrollbars */
 }
 
-/* modal-body: scrollable middle section */
+/* Ensure the form takes up the available space and allows the body to scroll */
+#sale-form {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Contains the scrollable body */
+  height: 100%;
+}
+
+/* This is the key: make the body scrollable */
 .modal-body {
   overflow-y: auto;
   flex: 1;
-  min-height: 0;
   padding: 24px;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 /* footer always pinned to bottom */
