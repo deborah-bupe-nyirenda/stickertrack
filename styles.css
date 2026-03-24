@@ -557,11 +557,22 @@ tbody td {
   overflow: hidden;
 }
 
-.modal-body { padding: 24px; overflow-y: auto; flex: 1; min-height: 0; }
+/* modal-body: scrollable middle section */
+.modal-body {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding: 24px;
+}
 
-/* Ensure footer always stays visible */
+/* footer always pinned to bottom */
 .modal-footer {
   flex-shrink: 0;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
 }
 
 @keyframes slideUp {
@@ -575,6 +586,7 @@ tbody td {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 
 .modal-title {
@@ -595,14 +607,6 @@ tbody td {
 }
 
 .modal-close:hover { color: var(--text-primary); }
-
-.modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--border-subtle);
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
 
 /* ── Form Elements ── */
 .form-grid {
