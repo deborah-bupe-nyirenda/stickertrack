@@ -565,7 +565,11 @@ tbody td {
 
 .modal-close:hover { color: var(--text-primary); }
 
-.modal-body { padding: 24px; }
+..modal-body { 
+  padding: 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
 
 .modal-footer {
   padding: 16px 24px;
