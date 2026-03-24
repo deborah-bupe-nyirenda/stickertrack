@@ -600,8 +600,6 @@ tbody td {
 
 .modal-close:hover { color: var(--text-primary); }
 
-.modal-body { padding: 24px; }
-
 .modal-footer {
   padding: 16px 24px;
   border-top: 1px solid var(--border-subtle);
